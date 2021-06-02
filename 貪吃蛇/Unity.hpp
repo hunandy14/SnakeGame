@@ -1,8 +1,9 @@
 ﻿#pragma once
-#include <windows.h>
 #include <string>
-#include <random>
 
+
+
+#include <windows.h>
 class ConsoleUnity {
 public:
 	static void hideCursor(){
@@ -28,6 +29,8 @@ public:
 };
 
 
+
+#include <random>
 class Coor {
 public:
 	Coor(){}
@@ -61,6 +64,8 @@ public:
 };
 
 
+
+#include <deque>
 class Canvas {
 public:
 	Canvas(){}

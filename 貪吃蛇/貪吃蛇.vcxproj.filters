@@ -15,14 +15,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Snake_main.cpp">
+    <ClCompile Include="SnakeGame.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="snake_ex1.hpp">
-      <Filter>來源檔案</Filter>
-    </ClInclude>
     <ClInclude Include="Unity.hpp">
       <Filter>來源檔案</Filter>
     </ClInclude>

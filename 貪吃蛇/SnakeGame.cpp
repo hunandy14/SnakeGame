@@ -1,5 +1,4 @@
 ﻿#include <iostream>
-#include <deque>
 #include <conio.h>
 using namespace std;
 
@@ -21,8 +20,6 @@ public:
 		food.set(40, 8);
 		Canvas::out("★", food);
 		string s = "[" + to_string(food.x) + ", " + to_string(food.y) + "]";
-
-		Coor info{0, h-1};
 		Canvas::out(s, Coor{0, h-1});
 	}
 	Coor getFoodCoor(unsigned short w, unsigned short h) {
@@ -97,7 +94,10 @@ public:
 		if (food == snk_list[0]) {
 			score++, getFood=1;
 			food = getFoodCoor(width, height);
-		} Canvas::out("★", food);
+		}
+		Canvas::out("★", food);
+		string s = "[" + to_string(food.x) + ", " + to_string(food.y) + "]";
+		Canvas::out(s, Coor{0, height-1});
 
 		// 前進
 		Canvas::out("●", snk_list[0]);
