@@ -21,18 +21,10 @@ public:
 		string cmd="title "+name;
 		system(cmd.c_str());
 	}
-	static void out(const char* str) {
-		printf("%s", str);
-	}
 public:
-	static void init(string name, unsigned short w, unsigned short h) {
-		setTitle("CHG");
-		setSize(88, 28);
-		hideCursor();
-	}
 	static void out(string str, short x, short y) {
 		setPosition(x, y);
-		out(str.c_str());
+		printf("%s", str);
 	}
 };
 
