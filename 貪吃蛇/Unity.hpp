@@ -24,7 +24,7 @@ public:
 public:
 	static void out(string str, short x, short y) {
 		setPosition(x, y);
-		printf("%s", str);
+		printf("%s", str.c_str());
 	}
 };
 
