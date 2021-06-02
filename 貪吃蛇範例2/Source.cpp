@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <vector>
+#include <deque>
 #include <windows.h>
 #include <conio.h>
 #include <time.h>
@@ -28,6 +29,8 @@ L1:
 		}
 		gotoxy(m_x, m_y);	//在确认好的位置输出食物
 		cout << "★";
+		gotoxy(0, 1);
+		cout << m_x << ", " << m_y << endl;
 	}
 	int getFoodm_x()		//返回食物的x坐标
 	{
@@ -48,26 +51,23 @@ private:
 		int y;
 	};
 	//蛇容器
-	vector<Snakecoor> snakecoor;
+	deque<Snakecoor> snakecoor;
 
 
 	//判断和改变方向函数
-	void degdir(Snakecoor& nexthead)	//参数：新蛇头结构变量、蛇坐标容器
+	Snakecoor degdir()	//参数：新蛇头结构变量、蛇坐标容器
 	{
+		auto&& c = snakecoor.front();
+		Snakecoor nexthead{ c.x, c.y };
+
 		static char key = 'd';	//静态变量防止改变移动方向后重新改回来
 
 		if (_kbhit())			//改变蛇前进的方向
 		{
 			char temp = _getch();
 
-			switch (temp)		//如果临时变量的值为wasd中的一个，则赋值给key
+			if (temp=='w' or temp=='a' or temp=='s' or temp=='d')	//如果临时变量的值为wasd中的一个，则赋值给key
 			{
-			default:
-				break;
-			case 'w':
-			case 'a':
-			case 's':
-			case 'd':
 				//如果temp的方向和key的方向不相反则赋值
 				if ((key == 'w' && temp != 's') || (key == 's' && temp != 'w') || \
 					(key == 'a' && temp != 'd') || (key == 'd' && temp != 'a'))
@@ -75,26 +75,21 @@ private:
 			}
 		}
 
-
 		switch (key)		//根据key的值确定蛇的移动方向
 		{
 		case 'd':
-			nexthead.x = snakecoor.front().x + 2;	  //新的蛇头的头部等于容器内第一个数据(旧蛇头)x坐标+2
-			nexthead.y = snakecoor.front().y;
+			nexthead.x += 2;	  //新的蛇头的头部等于容器内第一个数据(旧蛇头)x坐标+2
 			break;
 		case 'a':
-			nexthead.x = snakecoor.front().x - 2;
-			nexthead.y = snakecoor.front().y;
+			nexthead.x -= 2;
 			break;
 		case 'w':
-			nexthead.x = snakecoor.front().x;
-			nexthead.y = snakecoor.front().y - 1;
+			nexthead.y -= 1;
 			break;
 		case 's':
-			nexthead.x = snakecoor.front().x;
-			nexthead.y = snakecoor.front().y + 1;
+			nexthead.y += 1;
 		}
-
+		return nexthead;
 	}
 
 	//游戏结束时需要做的事情
@@ -137,9 +132,10 @@ public:
 	void move(Food& food, int& score) {
 		Snakecoor nexthead;			//新蛇头变量
 
-		degdir(nexthead);				//判断和改变蛇前进的方向
+		nexthead = degdir();				//判断和改变蛇前进的方向回傳移動後的蛇頭位置
 
-		snakecoor.insert(snakecoor.begin(), nexthead);	//将新的蛇头插入容器头部
+		
+		snakecoor.push_front(nexthead); //将新的蛇头插入容器头部
 
 		gotoxy(0, 0);
 		cout << "得分：" << score;				//每次移动都在左上角刷新得分

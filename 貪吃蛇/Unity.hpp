@@ -30,9 +30,9 @@ public:
 		setSize(88, 28);
 		hideCursor();
 	}
-	static void out(const char* str, short x, short y) {
+	static void out(string str, short x, short y) {
 		setPosition(x, y);
-		out(str);
+		out(str.c_str());
 	}
 };
 
@@ -53,10 +53,13 @@ public:
 		this->y = y;
 	}
 public:
-	static Coor randCoor(int min, int max) {
+	static Coor randCoor(int x_max, int y_max) {
+		return Coor(rand(0, x_max), rand(1, y_max));
+	}
+	static int rand(int min, int max) {
 		static mt19937 gen{random_device{}()};
 		uniform_int_distribution<int> distribution{min, --max};
-		return Coor(distribution(gen), distribution(gen));
+		return distribution(gen);
 	}
 public:
 	friend std::ostream& operator<<(std::ostream& os, const Coor& obj) {
@@ -66,4 +69,24 @@ public:
 public:
 	int x;
 	int y;
+};
+
+
+class Canvas {
+public:
+	Canvas() {}
+
+	static void drawSnake(const deque<Coor>& snk_list) {
+		for (size_t i = 0; i < snk_list.size(); i++) {
+			auto&& c = snk_list[i];
+			if (i==0) {
+				ConsoleUnity::out("●", c.x, c.y);
+			} else {
+				ConsoleUnity::out("■", c.x, c.y);
+			}
+		}
+	}
+	static void out(string str, const Coor& c) {
+		ConsoleUnity::out(str.c_str(), c.x, c.y);
+	}
 };
