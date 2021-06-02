@@ -1,8 +1,7 @@
 ﻿#pragma once
 #include <windows.h>
 #include <string>
-
-
+#include <random>
 
 class ConsoleUnity {
 public:
@@ -62,3 +61,33 @@ public:
 };
 
 
+class Canvas {
+public:
+	Canvas(){}
+	Canvas(string name, unsigned short w, unsigned short h):
+		name(name), width(w), height(h)
+	{
+		ConsoleUnity::hideCursor();
+	}
+public:
+	static void init(string name, unsigned short w, unsigned short h) {
+		ConsoleUnity::setTitle(name);
+		ConsoleUnity::setSize(w, h);
+		ConsoleUnity::hideCursor();
+	}
+	static void drawSnake(const deque<Coor>& snk_list) {
+		for (size_t i = 0; i < snk_list.size(); i++) {
+			if (i == 0) out("●", snk_list[i]);
+			else out("■", snk_list[i]);
+		}
+	}
+	static void out(string str, const Coor& c) {
+		ConsoleUnity::setPosition(c.x, c.y);
+		printf("%s", str.c_str());
+
+	}
+public:
+	string name;
+	unsigned short width = 0;
+	unsigned short height = 0;
+};

@@ -1,6 +1,4 @@
 ﻿#include <iostream>
-#include <vector>
-#include <random>
 #include <deque>
 #include <conio.h>
 using namespace std;
@@ -8,71 +6,61 @@ using namespace std;
 #include "Unity.hpp"
 
 
-class Canvas {
-public:
-	Canvas(){}
-	Canvas(string name, unsigned short w, unsigned short h):
-		name(name), width(w), height(h)
-	{
-		ConsoleUnity::hideCursor();
-	}
-public:
-	static void init(string name, unsigned short w, unsigned short h) {
-		ConsoleUnity::setTitle(name);
-		ConsoleUnity::setSize(w, h);
-		ConsoleUnity::hideCursor();
-	}
-	static void drawSnake(const deque<Coor>& snk_list) {
-		for (size_t i = 0; i < snk_list.size(); i++) {
-			if (i == 0) out("●", snk_list[i]);
-			else out("■", snk_list[i]);
-		}
-	}
-	static void out(string str, const Coor& c) {
-		ConsoleUnity::setPosition(c.x, c.y);
-		printf("%s", str.c_str());
-
-	}
-public:
-	string name;
-	unsigned short width = 0;
-	unsigned short height = 0;
-};
-
 class SnakeGame {
 public:
-	SnakeGame() {
-		width = 88;
-		height = 28;
-		Canvas::init("CHG", width, height);
+	SnakeGame(string name, unsigned short w, unsigned short h) {
+		width = w;
+		height = h;
+		Canvas::init(name, w, h);
 		Coor start(16, 8);
 		for (int i = 5; i >= 0; i--) {
 			Coor coor(start.x + (i << 1), start.y);
-			snakecoor.emplace_back(coor);
-		} Canvas::drawSnake(snakecoor);
+			snk_list.emplace_back(coor);
+		} Canvas::drawSnake(snk_list);
 
 		food.set(40, 8);
 		Canvas::out("★", food);
 		string s = "[" + to_string(food.x) + ", " + to_string(food.y) + "]";
 
-		Coor info{0, height-1};
-		Canvas::out(s, Coor{0, height-1});
+		Coor info{0, h-1};
+		Canvas::out(s, Coor{0, h-1});
 	}
-	Coor getFoodCoor() {
-		Coor food = Coor::randCoor(0, width-1, 1, height-2);
+	Coor getFoodCoor(unsigned short w, unsigned short h) {
+		Coor food = Coor::randCoor(0, w-1, 1, h-2);
 		if (food.x%2 and food.x>1) {
 			food.x--;
 		} else if (food.x ==1) {
 			food.x++;
 		}
-		for (auto&& i : snakecoor) {
+		for (auto&& i : snk_list) {
 			if (i == food) {
-				food = getFoodCoor();
+				food = getFoodCoor(w, h);
 			}
 		}
 		return food;
 	}
-
+	void checkGameOver(const int& score, const int& x_max, const int& y_max) {
+		bool gameOver = 0;
+		//撞墙
+		auto&& c = snk_list[0];
+		if (c.x >= x_max or c.x < 0 or
+			c.y >= y_max or c.y < 0) {
+			gameOver = 1;
+		}
+		//撞自己
+		for (int i = 1; i < snk_list.size(); i++) {
+			if (snk_list[0] == snk_list[i]) {
+				gameOver = 1;
+			}
+		}
+		// 遊戲結束
+		if (gameOver) {
+			system("cls");
+			ConsoleUnity::out("遊戲結束", 40, 14);
+			ConsoleUnity::out("得分" + to_string(score), 40, 16);
+			exit(0);
+		}
+	}
 public:
 	Coor getDire(Coor nexthead) {
 		static char key = 'd';// 這 static 最初第一次的時候預設是往右邊跑
@@ -97,64 +85,41 @@ public:
 		}
 		return nexthead;
 	}
-	void checkGameOver(const int& score) {
-		bool gameOver = 0;
-		//撞墙
-		if (snakecoor[0].x >= width or snakecoor[0].x < 0 or
-			snakecoor[0].y >= height or snakecoor[0].y < 0) {
-			gameOver = 1;
-		}
-		//撞自己
-		for (int i = 1; i < snakecoor.size(); i++) {
-			if (snakecoor[0] == snakecoor[i]) {
-				gameOver = 1;
-			}
-		}
-		// 遊戲結束
-		if (gameOver) {
-			system("cls");
-			ConsoleUnity::out("遊戲結束", 40, 14);
-			ConsoleUnity::out("得分" + to_string(score), 40, 16);
-			exit(0);
-		}
-	}
-
-
-
+public:
 	void move() {
 		Canvas::out("得分:" + to_string(score), Coor{ 0, 0 });
-		Coor nexthead = getDire(snakecoor[0]);
-		snakecoor.push_front(nexthead);
-		checkGameOver(score);
+		Coor nexthead = getDire(snk_list[0]);
+		snk_list.push_front(nexthead);
+		checkGameOver(score, width, height);
 
 		// 吃到食物
 		bool getFood=0;
-		if (food == snakecoor[0]) {
+		if (food == snk_list[0]) {
 			score++, getFood=1;
-			food = getFoodCoor();
+			food = getFoodCoor(width, height);
 		} Canvas::out("★", food);
 
 		// 前進
-		Canvas::out("●", snakecoor[0]);
-		Canvas::out("■", snakecoor[1]);
+		Canvas::out("●", snk_list[0]);
+		Canvas::out("■", snk_list[1]);
 		if (!getFood) {
-			Canvas::out("　", snakecoor.back());
-			snakecoor.pop_back();
+			Canvas::out("　", snk_list.back());
+			snk_list.pop_back();
 		}
 	}
 
 private:
-	deque<Coor> snakecoor;
+	deque<Coor> snk_list;
 	unsigned short width = 0;
 	unsigned short height = 0;
 	Coor food{-1, -1};
 	int score = 0;
-	Canvas cv;
 };
 //====================================================================================
 int main(int argc, char const* argv[]) {
-	SnakeGame game;
+	int w=88, h=28;
 
+	SnakeGame game("CHG", w, h);
 	while (true) {
 		game.move();
 		Sleep(100);
