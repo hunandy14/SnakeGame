@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <ostream>
 #include <string>
 
 
@@ -14,43 +15,20 @@ public:
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), COORD{x, y});
 	}
 	static void setSize(unsigned short w, unsigned short h) {
-		string cmd="mode con cols=" + to_string(w) +  "lines=" + to_string(h);
+		std::string cmd="mode con cols=" + std::to_string(w) +  "lines=" + std::to_string(h);
 		system(cmd.c_str());
 	}
-	static void setTitle(string name) {
-		string cmd="title "+name;
+	static void setTitle(std::string name) {
+		std::string cmd="title "+name;
 		system(cmd.c_str());
 	}
 	static void clearScreen() {
 		system("cls");
 	}
 public:
-	static void out(string str, short x, short y) {
+	static void out(std::string str, short x, short y) {
 		setPosition(x, y);
 		printf("%s", str.c_str());
-	}
-};
-
-
-
-#include <deque>
-class Canvas { // 畫布函式
-public:
-	static void init(string name, unsigned short w, unsigned short h) {
-		ConsoleUnity::setTitle(name);
-		ConsoleUnity::setSize(w, h);
-		ConsoleUnity::hideCursor();
-	}
-	static void drawSnake(const deque<Coor>& snk_list) {
-		for (size_t i = 0; i < snk_list.size(); i++) {
-			if (i == 0) out("●", snk_list[i]);
-			else out("■", snk_list[i]);
-		}
-	}
-	static void out(string str, const Coor& c) {
-		ConsoleUnity::setPosition(c.x, c.y);
-		printf("%s", str.c_str());
-
 	}
 };
 
@@ -80,11 +58,34 @@ public:
 	}
 private:
 	static int rand(int min, int max) {
-		static mt19937 gen{random_device{}()};
-		uniform_int_distribution<int> distribution{min, --max};
+		static std::mt19937 gen{std::random_device{}()};
+		std::uniform_int_distribution<int> distribution{min, --max};
 		return distribution(gen);
 	}
 public:
 	int x = 0;
 	int y = 0;
+};
+
+
+
+#include <deque>
+class Canvas { // 畫布函式
+public:
+	static void init(std::string name, unsigned short w, unsigned short h) {
+		ConsoleUnity::setTitle(name);
+		ConsoleUnity::setSize(w, h);
+		ConsoleUnity::hideCursor();
+	}
+	static void drawSnake(const std::deque<Coor>& snk_list) {
+		for (size_t i = 0; i < snk_list.size(); i++) {
+			if (i == 0) out("●", snk_list[i]);
+			else out("■", snk_list[i]);
+		}
+	}
+	static void out(std::string str, const Coor& c) {
+		ConsoleUnity::setPosition(c.x, c.y);
+		printf("%s", str.c_str());
+
+	}
 };

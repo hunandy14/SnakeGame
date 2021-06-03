@@ -1,8 +1,8 @@
 ﻿#include <iostream>
 #include <conio.h>
-using namespace std;
 
 #include "Unity.hpp"
+using namespace std;
 
 
 class SnakeGame {
@@ -13,13 +13,16 @@ public:
 		width = w%2? w+1: w;
 		height = h;
 		Canvas::init(name, width, height);
+		// 初始化蛇身
 		Coor start(16, height/4);
 		for (int i = 5; i >= 0; i--) {
 			Coor coor(start.x + (i << 1), start.y);
+			if (i == 0) Canvas::out("●", coor);
+			else Canvas::out("■", coor);
 			snk_list.emplace_back(coor);
-		} Canvas::drawSnake(snk_list);
-
-		food.set(start.x+20, start.y);
+		}
+		// 初始化食物
+		food.set(start.x+40, start.y);
 		Canvas::out("★", food);
 		string s = "[" + to_string(food.x) + ", " + to_string(food.y) + "]";
 		Canvas::out(s, {0, height-1});
