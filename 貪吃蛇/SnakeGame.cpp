@@ -7,41 +7,41 @@ using namespace std;
 
 class SnakeGame {
 public:
-	SnakeGame(string name, unsigned short w, unsigned short h) {
-		width = w;
+	// 初始化介面
+	SnakeGame(string name) {
+		int w=100, h=34;
+		width = w%2? w+1: w;
 		height = h;
-		Canvas::init(name, w, h);
-		Coor start(16, 8);
+		Canvas::init(name, width, height);
+		Coor start(16, height/4);
 		for (int i = 5; i >= 0; i--) {
 			Coor coor(start.x + (i << 1), start.y);
 			snk_list.emplace_back(coor);
 		} Canvas::drawSnake(snk_list);
 
-		food.set(40, 8);
+		food.set(start.x+20, start.y);
 		Canvas::out("★", food);
 		string s = "[" + to_string(food.x) + ", " + to_string(food.y) + "]";
-		Canvas::out(s, Coor{0, h-1});
+		Canvas::out(s, {0, height-1});
 	}
+	// 獲取隨機的食物座標
 	Coor getFoodCoor(unsigned short w, unsigned short h) {
 		Coor food = Coor::randCoor(0, w-1, 1, h-2);
-		if (food.x%2 and food.x>1) {
-			food.x--;
-		} else if (food.x ==1) {
-			food.x++;
-		}
+		food.x%2? food.x--: food.x; // 校正奇數(顯示問題只能在偶數欄位)
 		for (auto&& i : snk_list) {
-			if (i == food) {
+			if (i == food) { // 正好位於蛇身重做一個
 				food = getFoodCoor(w, h);
 			}
 		}
 		return food;
 	}
-	void checkGameOver(const int& score, const int& x_max, const int& y_max) {
+	// 確認遊戲是否結束
+	bool checkGameOver() {
 		bool gameOver = 0;
 		//撞墙
 		auto&& c = snk_list[0];
-		if (c.x >= x_max or c.x < 0 or
-			c.y >= y_max or c.y < 0) {
+		if (c.x >= width-1 or c.x < 0 or
+			c.y >= height-1 or c.y < 0) {
 			gameOver = 1;
 		}
 		//撞自己
@@ -52,15 +52,15 @@ public:
 		}
 		// 遊戲結束
 		if (gameOver) {
-			system("cls");
+			ConsoleUnity::clearScreen();
 			ConsoleUnity::out("遊戲結束", 40, 14);
 			ConsoleUnity::out("得分" + to_string(score), 40, 16);
-			exit(0);
-		}
+			return 1;
+		} return 0;
 	}
-public:
-	Coor getDire(Coor nexthead) {
-		static char key = 'd';// 這 static 最初第一次的時候預設是往右邊跑
+	// 獲取下一個前進方向
+	Coor getDire(Coor nextCoor) {
+		static char key = 'd'; // 紀錄上一次方向(預設第一次是向右)
 		if (_kbhit()) {
 			char temp = _getch();
 			if (temp == 'w' or temp == 'a' or temp == 's' or temp == 'd') {
@@ -72,25 +72,25 @@ public:
 			}
 		}
 		if (key=='w') {
-			nexthead.y -= 1;
+			nextCoor.y -= 1;
 		} else if (key=='a') {
-			nexthead.x -= 2;
+			nextCoor.x -= 2;
 		} else if (key=='s') {
-			nexthead.y += 1;
+			nextCoor.y += 1;
 		} else if (key=='d') {
-			nexthead.x += 2;
+			nextCoor.x += 2;
 		}
-		return nexthead;
+		return nextCoor;
 	}
 public:
-	void move() {
+	// 運行程序
+	bool run() {
 		Canvas::out("得分:" + to_string(score), Coor{ 0, 0 });
-		Coor nexthead = getDire(snk_list[0]);
-		snk_list.push_front(nexthead);
-		checkGameOver(score, width, height);
-
+		Coor nextCoor = getDire(snk_list[0]);
+		snk_list.push_front(nextCoor);
+		if (checkGameOver()) return 0;
 		// 吃到食物
-		bool getFood=0;
+		bool getFood = 0;
 		if (food == snk_list[0]) {
 			score++, getFood=1;
 			food = getFoodCoor(width, height);
@@ -98,7 +98,6 @@ public:
 		Canvas::out("★", food);
 		string s = "[" + to_string(food.x) + ", " + to_string(food.y) + "]";
 		Canvas::out(s, Coor{0, height-1});
-
 		// 前進
 		Canvas::out("●", snk_list[0]);
 		Canvas::out("■", snk_list[1]);
@@ -106,8 +105,8 @@ public:
 			Canvas::out("　", snk_list.back());
 			snk_list.pop_back();
 		}
+		return 1;
 	}
-
 private:
 	deque<Coor> snk_list;
 	unsigned short width = 0;
@@ -117,11 +116,8 @@ private:
 };
 //====================================================================================
 int main(int argc, char const* argv[]) {
-	int w=88, h=28;
-
-	SnakeGame game("CHG", w, h);
-	while (true) {
-		game.move();
+	SnakeGame game("Snake Gmae ------By:CHG");
+	while (game.run()) {
 		Sleep(100);
 	}
 
